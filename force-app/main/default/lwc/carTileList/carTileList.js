@@ -1,5 +1,5 @@
 import { LightningElement, wire } from 'lwc';
-import getCars from '@salesforce/apex/CarController.getCars';
+import getCars from '@salesforce/apex/carController.getCars';
 
 // Lightning message service and message channel
 import {subscribe, MessageContext} from 'lightning/messageService';
@@ -12,15 +12,16 @@ export default class CarTileList extends LightningElement {
     filters = {}
     carFilterSubscription
 
-    @wire(getCars, {filters: '$filters'})
+    @wire(getCars, {filters : '$filters'})
     carHandler({data,error}){
         if(data){
-            console.log(data)
+            console.log(" data from apex",data)
             this.cars = data
+            console.log("cars data from apex",this.cars)
         }
         
         if(error){
-            console.error("error===>" + error)
+            console.error("error from apex===>" + error)
             this.error = error
         }
     }
@@ -45,8 +46,8 @@ export default class CarTileList extends LightningElement {
     }
 
     handleFilterMessage(message){
-        console.log("message===>", message.filters)
-        console.log("message===>" + JSON.stringify(message.filters))
+        this.filters = {...message.filters}
+        console.log("filters got data===>" + JSON.stringify(this.filters))
     }
 
 }

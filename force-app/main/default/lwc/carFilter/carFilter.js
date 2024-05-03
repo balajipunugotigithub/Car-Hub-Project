@@ -19,6 +19,7 @@ export default class CarFilter extends LightningElement {
 
     categoryError = CATEGORY_ERROR
     makeTypeError = MAKE_ERROR
+    timer
 
     /*Load context for LMS*/
     @wire(MessageContext)
@@ -50,6 +51,7 @@ export default class CarFilter extends LightningElement {
     handleMaxPriceChange(event){
         console.log(event.target.value);
         this.filters = {...this.filters, "maxPrice": event.target.value}
+        this.sendDataToCarList();
         
     }
     
@@ -57,14 +59,34 @@ export default class CarFilter extends LightningElement {
         const { name, value } = event.target.dataset;
         console.log("name", name);
         console.log("value", value);
+
+        if(!this.filters.categories){
+            const categories = this.categories.data.values.map(item => item.value)
+            const makeType = this.makeType.data.values.map(item => item.value)
+            this.filters = {...this.filters, categories, makeType}
+        }
+
+        if(event.target.checked){
+            if(!this.filters[name].includes[value]){
+                this.filters[name] = [...this.filters[name], value]
+            }else{
+                this.filters[name] = this.filter[name].filter(item=>item !==value)
+            }
+        }
+
+        this.sendDataToCarList();
         
     }
 
     sendDataToCarList(){
+        window.clearTimeout(this.timer);
         console.log('calling sendDataToCarList-->'+JSON.stringify(this.filters))
-        publish( this.messageContext, CARS_FILTERED_MESSAGE, {
-            filters: this.filters
-        })
+        this.timer = window.setTimeout(() => {
+            publish( this.messageContext, CARS_FILTERED_MESSAGE, {
+                filters: this.filters
+            })
+        }, 4000)
+        
     }
 
 }
